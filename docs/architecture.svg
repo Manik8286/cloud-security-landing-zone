@@ -1,0 +1,63 @@
+<svg width="680" height="660" viewBox="0 0 680 660" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Secure landing zone build progress</title>
+<desc>Bootstrap remote state backend feeds an Azure resource group with a VNet, app and data subnets, and a planned Key Vault, plus a planned AWS account with IAM Identity Center and centralized logging. Green fill indicates built; dashed outline indicates planned.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#0F6E56" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<rect width="680" height="660" fill="#FFFFFF"/>
+
+<!-- Bootstrap -->
+<rect x="240" y="30" width="200" height="48" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="340" y="49" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#173404">Bootstrap backend</text>
+<text x="340" y="65" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="12" fill="#27500A">Stores tfstate</text>
+
+<line x1="340" y1="78" x2="340" y2="108" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Azure outer -->
+<rect x="40" y="110" width="580" height="260" rx="20" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="140" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">Azure</text>
+<text x="60" y="158" font-family="Arial, sans-serif" font-size="12" fill="#444441">rg-secure-landing-zone</text>
+
+<!-- VNet (built) -->
+<rect x="70" y="180" width="330" height="170" rx="12" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="90" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#173404">VNet 10.10.0.0/16</text>
+
+<rect x="100" y="230" width="130" height="70" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="165" y="255" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#173404">snet-app</text>
+<text x="165" y="273" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="12" fill="#27500A">NSG enforced</text>
+
+<rect x="250" y="230" width="130" height="70" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="315" y="255" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#173404">snet-data</text>
+<text x="315" y="273" text-anchor="middle" dominant-baseline="central" font-family="Arial, sans-serif" font-size="12" fill="#27500A">Data tier</text>
+
+<!-- Key Vault (planned) -->
+<rect x="420" y="180" width="180" height="170" rx="12" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="435" y="205" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">Key Vault</text>
+<text x="435" y="228" font-family="Arial, sans-serif" font-size="12" fill="#5F5E5A">Firewall enabled</text>
+<text x="435" y="246" font-family="Arial, sans-serif" font-size="12" fill="#5F5E5A">Private endpoint</text>
+
+<!-- AWS outer -->
+<rect x="40" y="400" width="580" height="190" rx="20" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="430" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">AWS</text>
+<text x="60" y="448" font-family="Arial, sans-serif" font-size="12" fill="#444441">Account</text>
+
+<!-- IAM (planned) -->
+<rect x="70" y="460" width="250" height="110" rx="12" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="90" y="485" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">IAM Identity Center</text>
+<text x="90" y="504" font-family="Arial, sans-serif" font-size="12" fill="#5F5E5A">Least-privilege permission set</text>
+
+<!-- Logging (planned) -->
+<rect x="350" y="460" width="250" height="110" rx="12" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="365" y="485" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">S3, CloudTrail, GuardDuty</text>
+<text x="365" y="504" font-family="Arial, sans-serif" font-size="12" fill="#5F5E5A">Encrypted logs, detection</text>
+
+<!-- Legend -->
+<rect x="220" y="612" width="16" height="16" rx="3" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="244" y="620" dominant-baseline="central" font-family="Arial, sans-serif" font-size="12" fill="#444441">Built</text>
+
+<rect x="330" y="612" width="16" height="16" rx="3" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="354" y="620" dominant-baseline="central" font-family="Arial, sans-serif" font-size="12" fill="#444441">Planned</text>
+</svg>

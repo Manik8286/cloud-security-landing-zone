@@ -8,54 +8,30 @@ A secure-by-design Azure + AWS landing zone built with Terraform, demonstrating 
 
 ## Architecture
 
-```
-                    ┌─────────────────────────────────────────┐
-                    │         Resource Group                  │
-                    │      rg-secure-landing-zone              │
-                    │                                           │
-                    │   ┌───────────────────────────────┐      │
-                    │   │   VNet (10.10.0.0/16)          │      │
-                    │   │                                 │      │
-                    │   │  ┌──────────────┐               │      │
-                    │   │  │ snet-app     │──NSG (deny-   │      │
-                    │   │  │ 10.10.1.0/24 │   by-default) │      │
-                    │   │  └──────────────┘               │      │
-                    │   │                                 │      │
-                    │   │  ┌──────────────┐   ┌─────────┐ │      │
-                    │   │  │ snet-data    │───│Key Vault│ │      │
-                    │   │  │ 10.10.2.0/24 │   │(private │ │      │
-                    │   │  │              │   │endpoint)│ │      │
-                    │   │  └──────────────┘   └─────────┘ │      │
-                    │   └───────────────────────────────┘      │
-                    │                                           │
-                    │   Azure Policy: enforce 'project' tag     │
-                    └─────────────────────────────────────────┘
+![Secure landing zone architecture](./architecture.svg)
 
-                    ┌─────────────────────────────────────────┐
-                    │              AWS Account                 │
-                    │                                           │
-                    │  IAM Identity Center                      │
-                    │  └─ SecurityReadOnly permission set       │
-                    │     (SecurityAudit managed policy)        │
-                    │                                           │
-                    │  S3 (logs bucket)                         │
-                    │  ├─ Public access blocked                 │
-                    │  └─ SSE-AES256 encryption                 │
-                    │                                           │
-                    │  CloudTrail (multi-region, log validation)│
-                    │  GuardDuty (S3 threat detection enabled)  │
-                    └─────────────────────────────────────────┘
-```
+Green = built. Dashed outline = planned.
 
-## What each module enforces
+## Build progress
 
-| Module | Control | Verified by |
-|---|---|---|
-| **1. Network** | Deny-by-default NSG rules; app/data subnet isolation | `az network nsg rule list` — confirms explicit deny at priority 4096 |
-| **2. Key Vault** | Firewall (`default_action = Deny`) + private endpoint; no public network access | Attempted secret write from outside the VNet fails with a firewall error (deliberately triggered) |
-| **3. Policy** | Deny-effect policy blocking untagged resource creation | Test resource creation without required tag is denied; confirmed via `az policy state list` |
-| **4. IAM (AWS)** | Least-privilege permission set (read-only security audit access, not admin) | Logged in via assigned permission set; confirmed read access without write/modify capability |
-| **5. Logging & Detection** | Multi-region CloudTrail with log file validation; GuardDuty S3 threat detection | `aws cloudtrail get-trail-status` confirms `IsLogging: true`; GuardDuty sample finding generated for validation |
+| Module | Layer | Control | Status |
+|---|---|---|---|
+| 0. Bootstrap | — | Remote Terraform state backend (Azure Storage, firewalled, versioned, soft-delete) | ✅ Done |
+| 1. Network | IaaS | Deny-by-default NSG rules; app/data subnet isolation | ✅ Done |
+| 2. Key Vault | PaaS | Firewall (`default_action = Deny`) + private endpoint; no public network access | 🚧 Planned |
+| 3. Policy | Governance | Deny-effect policy blocking untagged resource creation | 🚧 Planned |
+| 4. IAM (AWS) | Identity | Least-privilege permission set (read-only security audit access, not admin) | 🚧 Planned |
+| 5. Logging & Detection | Cross-cutting | Multi-region CloudTrail with log file validation; GuardDuty S3 threat detection | 🚧 Planned |
+
+## Verification approach
+
+Each module is verified by actually triggering the control, not just declaring it in code:
+
+- **Network**: `az network nsg rule list` confirms the explicit deny sits at priority 4096
+- **Key Vault**: a secret write attempted from outside the VNet is expected to fail with a firewall error (deliberately triggered)
+- **Policy**: a test resource created without the required tag is expected to be denied; confirmed via `az policy state list`
+- **IAM (AWS)**: login via the assigned permission set confirms read access without write/modify capability
+- **Logging**: `aws cloudtrail get-trail-status` confirms `IsLogging: true`; a GuardDuty sample finding is generated to validate detection
 
 ## Tech stack
 
@@ -67,19 +43,22 @@ A secure-by-design Azure + AWS landing zone built with Terraform, demonstrating 
 
 ```
 cloud-security-landing-zone/
+├── bootstrap/            # Remote state backend — separate lifecycle, deliberately not merged
+│   ├── main.tf
+│   ├── variables.tf
+│   └── output.tf
 ├── azure/
-│   ├── versions.tf
-│   ├── main.tf          # RG, VNet, subnets, NSGs
-│   ├── keyvault.tf       # Key Vault + firewall + private endpoint
-│   └── policy.tf         # Tagging enforcement policy
-├── aws/
-│   ├── permission_sets.tf
-│   ├── s3.tf
-│   ├── cloudtrail.tf
-│   └── guardduty.tf
+│   ├── versions.tf        # includes the remote backend block
+│   ├── main.tf            # RG, VNet, subnets
+│   ├── network.tf
+│   └── nsg.tf
+├── aws/                   # planned — permission sets, S3, CloudTrail, GuardDuty
 └── docs/
-    └── README.md
+    ├── README.md
+    └── architecture.svg
 ```
+
+`bootstrap/` is kept separate from `azure/` on purpose: different lifecycle (created once, rarely changes), different state (must stay local to avoid a circular dependency), and a deliberately smaller blast radius so a `destroy` in the main config can never touch the thing storing its own state.
 
 ## Notes
 
